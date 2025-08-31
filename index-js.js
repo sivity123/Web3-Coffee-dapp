@@ -5,6 +5,8 @@ const fundButton = document.getElementById("fundButton");
 const ethAmountElement = document.getElementById("ethAmount");
 const balanceButton = document.getElementById("balanceButton");
 const withdrawButton  =document.getElementById("withdrawButton");
+const contributionButton = document.getElementById("contributionButton");
+const funderAddressElement = document.getElementById("funderAddress");
 let walletClient;
 let publicClient ;
 
@@ -106,6 +108,36 @@ else{
   connectButton.innerText = "Please install Metamask or any Web3 wallet";
 }
 }
+async function funderContribution(){
+  walletClient = createWalletClient({
+    transport: custom(window.ethereum),
+  })
+  const[connectedAddress] = await walletClient.requestAddresses();
+  publicClient = createPublicClient({
+    transport: custom(window.ethereum),
+  })
+
+  const currentChain = await getCurrentChain(walletClient);
+  
+  const funderContribution = await publicClient.readContract({
+    address: contractAddress,
+    abi: coffeeAbi,
+    functionName: "getAddressToAmountFunded",
+    account: connectedAddress,
+    chain: currentChain,
+    args: [funderAddressElement.value],
+  });
+  if (funderContribution==0){
+    console.log("This address has not funded the contract yet");
+    return;
+  }
+  console.log(`Funder Contribution in eth is : ${formatEther(funderContribution)}`);
+  console.log(`The Funder address is : ${funderAddressElement.value}`);
+  
+
+
+
+}
 
 async function getCurrentChain(client) {
   const chainId = await client.getChainId()
@@ -130,6 +162,7 @@ connectButton.onclick = connect;
 fundButton.onclick =  fund;
 balanceButton.onclick = getBalance;
 withdrawButton.onclick = withdraw;
+contributionButton.onclick = funderContribution;
 
 
 
