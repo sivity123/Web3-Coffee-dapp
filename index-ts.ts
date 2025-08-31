@@ -16,6 +16,8 @@ const fundButton = document.getElementById("fundButton") as HTMLButtonElement;
 const ethAmountElement = document.getElementById("ethAmount") as HTMLInputElement;
 const balanceButton = document.getElementById("balanceButton") as HTMLButtonElement;
 const withdrawButton = document.getElementById("withdrawButton") as HTMLButtonElement;
+const contributionButton = document.getElementById("contributionButton") as HTMLButtonElement;
+const funderAddressElement = document.getElementById("funderAddress") as HTMLInputElement;
 
 let walletClient: WalletClient | undefined;
 let publicClient: PublicClient | undefined;
@@ -105,6 +107,30 @@ async function withdraw(): Promise<void> {
     connectButton.innerText = "Please install Metamask or any Web3 wallet";
   }
 }
+async function funderContribution(): Promise<void> {
+  const walletClient = createWalletClient({
+    transport: custom(window.ethereum),
+  });
+  const [connectedAddress] = await walletClient.requestAddresses();
+  const publicClient = createPublicClient({
+    transport: custom(window.ethereum),
+  });
+  const currentChain = await getCurrentChain(walletClient);
+  const funderContribution = await publicClient.readContract({
+    address: contractAddress,
+    abi,
+    functionName: "getAddressToAmountFunded",
+    chain: currentChain,
+    account: connectedAddress,
+    args: [funderAddressElement.value],
+  });
+  if (funderContribution == 0) {
+    console.log("This address has not funded the contract yet");
+    return;
+  }
+  console.log(`Funder Contribution in eth is : ${formatEther(funderContribution)}`);
+  console.log(`The Funder address is : ${funderAddressElement.value}`);
+}
 
 async function getCurrentChain(client: WalletClient) {
   const chainId = await client.getChainId();
@@ -129,3 +155,4 @@ connectButton.onclick = connect;
 fundButton.onclick = fund;
 balanceButton.onclick = getBalance;
 withdrawButton.onclick = withdraw;
+contributionButton.onclick = funderContribution;
