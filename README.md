@@ -1,5 +1,5 @@
-# creating the first dapp with JavaScript & TypeScript.
-    - The dapp should have four button 
+## creating the first dapp with JavaScript & TypeScript.
+    ** The dapp should have four button **
         - connect = inorder to connect the website to a Web3 Wallet(metamask) ✅
         - Get balance (retriving the balance of the smart contract we are interacting with.) ✅
         - Buy coffe (sending some amount of Eth to smart contract Fund func) ✔️
